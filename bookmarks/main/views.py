@@ -34,20 +34,23 @@ def add_link(request):
     context = RequestContext(request)
     if request.method == 'POST':
         url = request.POST.get("url","")
+
         input_tags = request.POST.get("tags","")
         input_tags = input_tags.split(' ')
-        title = request.POST.get("title","")
-        Link(title=title)
 
-        add_tags = []
+        title = request.POST.get("title","")
+        new_link = Link(title=title,url=url)
+        new_link.save()
+
         for tag in input_tags:
             try:
                 found = Tag.objects.get(name=tag)
-                add_tags.append(found)
+                new_link.tags.add(found)
             except:
-                add_tags.append(Tag(name=tag))
-            Link(tags=add_tags,title=title,url=url)
-
+                new_tag = Tag(name=tag)
+                new_tag.save()
+                new_link.tags.add(new_tag)
+        new_link.save()
     return redirect(index)
 
 
