@@ -1,8 +1,8 @@
 from django.shortcuts import render,render_to_response,redirect
 from django.template import RequestContext
-
+from django.db import IntegrityError
 from main.models import Link,Tag
-
+from django.contrib import messages
 
 # Create your views here.
 
@@ -40,7 +40,13 @@ def add_link(request):
 
         title = request.POST.get("title","")
         new_link = Link(title=title,url=url)
-        new_link.save()
+        
+        try: 
+            new_link.save()
+        except IntegrityError as e:
+            messages.error(request, e.message)
+            return redirect(index)
+
 
         for tag in input_tags:
             try:
@@ -50,7 +56,13 @@ def add_link(request):
                 new_tag = Tag(name=tag)
                 new_tag.save()
                 new_link.tags.add(new_tag)
-        new_link.save()
+        
+        try:
+            new_link.save()
+        except Error as e:
+            messages.error(request, e.message)
+            return redirect(index)
+
     return redirect(index)
 
 
